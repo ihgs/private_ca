@@ -1,0 +1,109 @@
+# Example YAML to get you started quickly.
+# Be aware that YAML has indentation based scoping.
+# Code completion support is available so start typing for available options.
+swagger: '2.0'
+
+# This is your document metadata
+info:
+  version: "1.0.0"
+  title: Private CA for Test
+
+basePath: /api/v1alpha
+# Describe your paths here
+paths:
+  /ca:
+    post:
+      description: |
+        Create CA
+      produces:
+        - application/json
+      parameters:
+        -
+          name: password
+          in: query
+          description: PEM pass phrase
+          required: true
+          type: string
+          default: capassword
+        -
+          name: country_name
+          in: query
+          description: Country Name (2 letter code)
+          required: true
+          type: string
+          default: JP
+        -
+          name: state_of_province
+          in: query
+          description: State or Province Name (full name)
+          required: true
+          type: string
+          default: Default Province
+        -
+          name: locality_name
+          in: query
+          description: Locality Name (eg, city)
+          required: true
+          type: string
+          default: Default City
+        -
+          name: org_name
+          in: query
+          description: Organization Name (eg, company)
+          required: true
+          type: string
+          default: Default Company Ltd
+        -
+          name: org_unit
+          in: query
+          description: Organizational Unit Name (eg, section)
+          required: true
+          type: string
+          default: Test Unit
+        -
+          name: common_name
+          in: query
+          description: Common Name (eg, your name or your server\'s hostname)
+          required: true
+          type: string
+          default: "*.local"
+          maxLength: 64
+        -
+          name: email
+          in: query
+          description: Email Address
+          required: true
+          type: string
+          default: ca@example.com
+          maxLength: 64
+        -
+          name: challenge_password
+          in: query
+          description: A challenge password
+          required: false
+          type: string
+          minLength: 4
+          maxLength: 20
+        -
+          name: optional_company_name
+          in: query
+          description: An optional company name
+          required: false
+          type: string
+        -
+          name: days
+          in: query
+          required: false
+          type: integer
+          default: 365
+        -
+          name: cdays
+          in: query
+          required: false
+          type: integer
+          default: 1095
+      responses:
+        200:
+          description: Successful response
+        505:
+          description: Already Exists
