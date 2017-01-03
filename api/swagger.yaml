@@ -13,6 +13,8 @@ basePath: /api/v1alpha
 paths:
   /ca:
     post:
+      tags:
+        - ca
       description: |
         Create CA
       operationId: createCA

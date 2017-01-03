@@ -6,10 +6,10 @@ import (
 
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
 	graceful "github.com/tylerb/graceful"
 
 	"github.com/ihgs/private_ca/restapi/operations"
+	"github.com/ihgs/private_ca/restapi/operations/ca"
 )
 
 // This file is safe to edit. Once it exists it will not be overwritten
@@ -34,9 +34,7 @@ func configureAPI(api *operations.PcaAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.CreateCAHandler = operations.CreateCAHandlerFunc(func(params operations.CreateCAParams) middleware.Responder {
-		return middleware.NotImplemented("operation .CreateCA has not yet been implemented")
-	})
+	api.CaCreateCAHandler = ca.CreateCAHandlerFunc(ca.Create)
 
 	api.ServerShutdown = func() {}
 

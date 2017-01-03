@@ -15,6 +15,8 @@ import (
 	spec "github.com/go-openapi/spec"
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	"github.com/ihgs/private_ca/restapi/operations/ca"
 )
 
 // NewPcaAPI creates a new Pca instance
@@ -29,9 +31,7 @@ func NewPcaAPI(spec *loads.Document) *PcaAPI {
 		ServeError:      errors.ServeError,
 		JSONConsumer:    runtime.JSONConsumer(),
 		JSONProducer:    runtime.JSONProducer(),
-		CreateCAHandler: CreateCAHandlerFunc(func(params CreateCAParams) middleware.Responder {
-			return middleware.NotImplemented("operation CreateCA has not yet been implemented")
-		}),
+		CaCreateCAHandler: ca.CreateCAHandlerFunc(ca.Create),
 	}
 }
 
@@ -50,8 +50,8 @@ type PcaAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// CreateCAHandler sets the operation handler for the create c a operation
-	CreateCAHandler CreateCAHandler
+	// CaCreateCAHandler sets the operation handler for the create c a operation
+	CaCreateCAHandler ca.CreateCAHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -115,8 +115,8 @@ func (o *PcaAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.CreateCAHandler == nil {
-		unregistered = append(unregistered, "CreateCAHandler")
+	if o.CaCreateCAHandler == nil {
+		unregistered = append(unregistered, "ca.CreateCAHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -202,7 +202,7 @@ func (o *PcaAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers[strings.ToUpper("POST")] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/ca"] = NewCreateCA(o.context, o.CreateCAHandler)
+	o.handlers["POST"]["/ca"] = ca.NewCreateCA(o.context, o.CaCreateCAHandler)
 
 }
 
