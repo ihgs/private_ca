@@ -16,6 +16,8 @@ paths:
       description: |
         Create CA
       operationId: createCA
+      consumes:
+        - application/json
       produces:
         - application/json
       parameters:
