@@ -7,9 +7,10 @@ import (
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 	graceful "github.com/tylerb/graceful"
-
+	
 	"github.com/ihgs/private_ca/restapi/operations"
 	"github.com/ihgs/private_ca/restapi/operations/ca"
+	"github.com/ihgs/private_ca/restapi/operations/csr"
 )
 
 // This file is safe to edit. Once it exists it will not be overwritten
@@ -35,6 +36,8 @@ func configureAPI(api *operations.PcaAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.CaCreateCAHandler = ca.CreateCAHandlerFunc(ca.Create)
+
+	api.CsrSignCsrHandler = csr.SignCsrHandlerFunc(csr.Sign)
 
 	api.ServerShutdown = func() {}
 

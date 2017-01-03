@@ -1,0 +1,15 @@
+{
+  "pem_password": "capassword",
+  "subject": {
+    "country_name": "JP",
+    "state_of_province": "Default Province",
+    "locality_name": "Default City",
+    "org_name": "Default Company Ltd",
+    "org_unit": "Test Unit",
+    "common_name": "*.local",
+    "email": "ca@example.com"
+  },
+  "days": 365,
+  "cdays": 1095
+}
+

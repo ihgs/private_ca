@@ -38,6 +38,35 @@ paths:
           description: Error Response
           schema:
             $ref: '#/definitions/errorModel'
+  /csr:
+    post:
+      tags:
+        - csr
+      description: |
+        Certificate Signing Request
+      operationId: signCsr
+      consumes:
+        - multipart/form-data
+      produces:
+        - text/plain
+      parameters:
+        -
+          name: pem_password
+          in: query
+          description: CA pem password
+          type: string
+        -
+          name: csr
+          in: formData
+          description: csr
+          required: true
+          type: file
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: string
+
 definitions:
   certificate_authority:
     type: object

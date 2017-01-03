@@ -17,21 +17,29 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/ihgs/private_ca/restapi/operations/ca"
+	"github.com/ihgs/private_ca/restapi/operations/csr"
 )
 
 // NewPcaAPI creates a new Pca instance
 func NewPcaAPI(spec *loads.Document) *PcaAPI {
 	return &PcaAPI{
-		handlers:        make(map[string]map[string]http.Handler),
-		formats:         strfmt.Default,
-		defaultConsumes: "application/json",
-		defaultProduces: "application/json",
-		ServerShutdown:  func() {},
-		spec:            spec,
-		ServeError:      errors.ServeError,
-		JSONConsumer:    runtime.JSONConsumer(),
-		JSONProducer:    runtime.JSONProducer(),
-		CaCreateCAHandler: ca.CreateCAHandlerFunc(ca.Create),
+		handlers:              make(map[string]map[string]http.Handler),
+		formats:               strfmt.Default,
+		defaultConsumes:       "application/json",
+		defaultProduces:       "application/json",
+		ServerShutdown:        func() {},
+		spec:                  spec,
+		ServeError:            errors.ServeError,
+		JSONConsumer:          runtime.JSONConsumer(),
+		MultipartformConsumer: runtime.DiscardConsumer,
+		JSONProducer:          runtime.JSONProducer(),
+		TxtProducer:           runtime.TextProducer(),
+		CaCreateCAHandler: ca.CreateCAHandlerFunc(func(params ca.CreateCAParams) middleware.Responder {
+			return middleware.NotImplemented("operation CaCreateCA has not yet been implemented")
+		}),
+		CsrSignCsrHandler: csr.SignCsrHandlerFunc(func(params csr.SignCsrParams) middleware.Responder {
+			return middleware.NotImplemented("operation CsrSignCsr has not yet been implemented")
+		}),
 	}
 }
 
@@ -46,12 +54,18 @@ type PcaAPI struct {
 	Middleware      func(middleware.Builder) http.Handler
 	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
+	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
+	MultipartformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
+	// TxtProducer registers a producer for a "text/plain" mime type
+	TxtProducer runtime.Producer
 
 	// CaCreateCAHandler sets the operation handler for the create c a operation
 	CaCreateCAHandler ca.CreateCAHandler
+	// CsrSignCsrHandler sets the operation handler for the sign csr operation
+	CsrSignCsrHandler csr.SignCsrHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -111,12 +125,24 @@ func (o *PcaAPI) Validate() error {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
 
+	if o.MultipartformConsumer == nil {
+		unregistered = append(unregistered, "MultipartformConsumer")
+	}
+
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.TxtProducer == nil {
+		unregistered = append(unregistered, "TxtProducer")
+	}
+
 	if o.CaCreateCAHandler == nil {
 		unregistered = append(unregistered, "ca.CreateCAHandler")
+	}
+
+	if o.CsrSignCsrHandler == nil {
+		unregistered = append(unregistered, "csr.SignCsrHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -148,6 +174,9 @@ func (o *PcaAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
 
+		case "multipart/form-data":
+			result["multipart/form-data"] = o.MultipartformConsumer
+
 		}
 	}
 	return result
@@ -163,6 +192,9 @@ func (o *PcaAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
 
 		case "application/json":
 			result["application/json"] = o.JSONProducer
+
+		case "text/plain":
+			result["text/plain"] = o.TxtProducer
 
 		}
 	}
@@ -203,6 +235,11 @@ func (o *PcaAPI) initHandlerCache() {
 		o.handlers[strings.ToUpper("POST")] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/ca"] = ca.NewCreateCA(o.context, o.CaCreateCAHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers[strings.ToUpper("POST")] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/csr"] = csr.NewSignCsr(o.context, o.CsrSignCsrHandler)
 
 }
 
